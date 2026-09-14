@@ -36,6 +36,7 @@ class FarmacoApp {
     this.setupPWA();
     this.setupSearchModal();
     this.setupCalculator();
+    this.setupHorizontalScrollers();
 
     // Rota inicial pela URL hash se existir
     const hash = window.location.hash.replace('#', '');
@@ -58,6 +59,78 @@ class FarmacoApp {
       this.updateStatsDisplay();
       this.renderMapsList();
     });
+  }
+
+  // ==========================================
+  // ROLAGEM HORIZONTAL INTELIGENTE (WHEEL + DRAG + CHEVRONS)
+  // ==========================================
+  setupHorizontalScrollers() {
+    this.enableDragAndWheelScroll('mapCategoriesPills', 'mapCatScrollLeft', 'mapCatScrollRight');
+    this.enableDragAndWheelScroll('dictionaryCategoryFilters', 'dictCatScrollLeft', 'dictCatScrollRight');
+    this.enableDragAndWheelScroll('quizCategoryPills', 'quizCatScrollLeft', 'quizCatScrollRight');
+  }
+
+  enableDragAndWheelScroll(containerId, leftBtnId, rightBtnId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    if (!container.dataset.scrollInitialized) {
+      container.dataset.scrollInitialized = 'true';
+
+      // 1. Rolar horizontalmente ao usar a roda do mouse (Wheel)
+      container.addEventListener('wheel', (e) => {
+        if (e.deltaY !== 0) {
+          e.preventDefault();
+          container.scrollLeft += e.deltaY;
+        }
+      }, { passive: false });
+
+      // 2. Clicar e arrastar com o mouse (Drag to scroll)
+      let isDown = false;
+      let startX = 0;
+      let scrollStart = 0;
+
+      container.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return;
+        isDown = true;
+        startX = e.pageX - container.offsetLeft;
+        scrollStart = container.scrollLeft;
+      });
+
+      window.addEventListener('mouseup', () => {
+        isDown = false;
+      });
+
+      container.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - container.offsetLeft;
+        const walk = (x - startX) * 1.5;
+        container.scrollLeft = scrollStart - walk;
+      });
+    }
+
+    // 3. Botões Laterais (< e >)
+    const leftBtn = document.getElementById(leftBtnId);
+    const rightBtn = document.getElementById(rightBtnId);
+
+    if (leftBtn && !leftBtn.dataset.btnBound) {
+      leftBtn.dataset.btnBound = 'true';
+      leftBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        container.scrollBy({ left: -260, behavior: 'smooth' });
+      });
+    }
+
+    if (rightBtn && !rightBtn.dataset.btnBound) {
+      rightBtn.dataset.btnBound = 'true';
+      rightBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        container.scrollBy({ left: 260, behavior: 'smooth' });
+      });
+    }
   }
 
   // ==========================================
@@ -160,7 +233,7 @@ class FarmacoApp {
     if (!container) return;
 
     let html = `
-      <button data-map-cat="all" class="px-3.5 py-1.5 rounded-full text-xs md:text-sm font-semibold whitespace-nowrap transition-all ${this.selectedMapCategory === 'all' ? 'bg-teal-600 text-white shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'}">
+      <button data-map-cat="all" class="px-3.5 py-1.5 rounded-full text-xs md:text-sm font-semibold whitespace-nowrap transition-all shrink-0 ${this.selectedMapCategory === 'all' ? 'bg-teal-600 text-white shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'}">
         Todos os Módulos (${window.MAPS_DATABASE.length})
       </button>
     `;
@@ -169,7 +242,7 @@ class FarmacoApp {
       const count = window.MAPS_DATABASE.filter(m => m.category === cat.id).length;
       const isSelected = this.selectedMapCategory === cat.id;
       html += `
-        <button data-map-cat="${cat.id}" class="px-3.5 py-1.5 rounded-full text-xs md:text-sm font-semibold whitespace-nowrap transition-all ${isSelected ? 'bg-teal-600 text-white shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'}">
+        <button data-map-cat="${cat.id}" class="px-3.5 py-1.5 rounded-full text-xs md:text-sm font-semibold whitespace-nowrap transition-all shrink-0 ${isSelected ? 'bg-teal-600 text-white shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'}">
           ${cat.name} (${count})
         </button>
       `;
@@ -182,8 +255,14 @@ class FarmacoApp {
         this.selectedMapCategory = btn.getAttribute('data-map-cat');
         this.renderMapCategoriesPills();
         this.renderMapsList();
+        const activeBtn = container.querySelector(`[data-map-cat="${this.selectedMapCategory}"]`);
+        if (activeBtn) {
+          activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
       });
     });
+
+    this.setupHorizontalScrollers();
   }
 
   renderMapsList() {
@@ -490,7 +569,7 @@ class FarmacoApp {
       const isSelected = this.dictionaryCategoryFilter === sys;
       const label = sys === 'all' ? 'Todos os Sistemas' : sys;
       html += `
-        <button data-dict-filter="${sys}" class="px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition ${isSelected ? 'bg-teal-600 text-white shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'}">
+        <button data-dict-filter="${sys}" class="px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition shrink-0 ${isSelected ? 'bg-teal-600 text-white shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'}">
           ${label}
         </button>
       `;
@@ -503,8 +582,14 @@ class FarmacoApp {
         this.dictionaryCategoryFilter = btn.getAttribute('data-dict-filter');
         this.renderDictionaryCategories();
         this.renderDictionaryList();
+        const activeBtn = container.querySelector(`[data-dict-filter="${this.dictionaryCategoryFilter}"]`);
+        if (activeBtn) {
+          activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
       });
     });
+
+    this.setupHorizontalScrollers();
   }
 
   renderDictionaryList() {
@@ -649,7 +734,7 @@ class FarmacoApp {
     const catContainer = document.getElementById('quizCategoryPills');
     if (catContainer) {
       let catHTML = `
-        <button data-quiz-cat="all" class="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition ${this.quizFilterCategory === 'all' ? 'bg-teal-600 text-white' : 'bg-white text-slate-700 border border-slate-200'}">
+        <button data-quiz-cat="all" class="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition shrink-0 ${this.quizFilterCategory === 'all' ? 'bg-teal-600 text-white shadow-sm' : 'bg-white text-slate-700 border border-slate-200'}">
           Todas as Questões (${window.QUIZ_QUESTIONS.length})
         </button>
       `;
@@ -657,7 +742,7 @@ class FarmacoApp {
         const count = window.QUIZ_QUESTIONS.filter(q => q.category === c.id).length;
         if (count > 0) {
           catHTML += `
-            <button data-quiz-cat="${c.id}" class="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition ${this.quizFilterCategory === c.id ? 'bg-teal-600 text-white' : 'bg-white text-slate-700 border border-slate-200'}">
+            <button data-quiz-cat="${c.id}" class="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition shrink-0 ${this.quizFilterCategory === c.id ? 'bg-teal-600 text-white shadow-sm' : 'bg-white text-slate-700 border border-slate-200'}">
               ${c.name} (${count})
             </button>
           `;
@@ -669,8 +754,14 @@ class FarmacoApp {
         btn.addEventListener('click', () => {
           this.quizFilterCategory = btn.getAttribute('data-quiz-cat');
           this.initQuiz();
+          const activeBtn = catContainer.querySelector(`[data-quiz-cat="${this.quizFilterCategory}"]`);
+          if (activeBtn) {
+            activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          }
         });
       });
+
+      this.setupHorizontalScrollers();
     }
 
     if (this.quizFilterCategory !== 'all') {
