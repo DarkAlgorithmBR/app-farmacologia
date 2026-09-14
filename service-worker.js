@@ -1,9 +1,9 @@
 /**
  * Farmacologia Conectada - Service Worker
- * Cache offline de arquivos estáticos e suporte PWA
+ * Network-First Strategy para atualizações em tempo real + Cache Offline
  */
 
-const CACHE_NAME = 'farmacologia-conectada-v1.0.0';
+const CACHE_NAME = 'farmacologia-conectada-v2.0.0';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -23,11 +23,12 @@ const ASSETS_TO_CACHE = [
 
 // Instalação do Service Worker e pré-cache
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[Service Worker] Pré-carregando cache de arquivos essenciais...');
+      console.log('[Service Worker v2] Pré-carregando cache de arquivos essenciais...');
       return cache.addAll(ASSETS_TO_CACHE);
-    }).then(() => self.skipWaiting())
+    })
   );
 });
 
@@ -47,14 +48,13 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Estratégia de cache: Stale-While-Revalidate com fallback para Cache First
+// Estratégia Network-First: Sempre busca a versão mais recente do servidor
 self.addEventListener('fetch', (event) => {
-  // Ignora requisições de esquemas não-HTTP (ex: chrome-extension)
   if (!event.request.url.startsWith('http')) return;
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request).then((networkResponse) => {
+    fetch(event.request)
+      .then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -62,12 +62,10 @@ self.addEventListener('fetch', (event) => {
           });
         }
         return networkResponse;
-      }).catch(() => {
-        // Modo offline
-        return cachedResponse;
-      });
-
-      return cachedResponse || fetchPromise;
-    })
+      })
+      .catch(() => {
+        // Fallback offline quando não houver internet
+        return caches.match(event.request);
+      })
   );
 });
