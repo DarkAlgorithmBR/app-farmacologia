@@ -32,7 +32,6 @@ class FarmacoApp {
   }
 
   init() {
-    this.initViewMode();
     this.bindGlobalEvents();
     this.setupPWA();
     this.setupSearchModal();
@@ -194,42 +193,12 @@ class FarmacoApp {
   }
 
   bindGlobalEvents() {
-    // Bloqueio rigoroso de zoom nativo da página inteira no celular (Safari/Chrome Mobile)
+    // Bloqueia gestos nativos de pinça no Safari iOS sem interferir na rolagem vertical
     document.addEventListener('gesturestart', (e) => {
       if (!e.target.closest('#viewerContainer')) {
         e.preventDefault();
       }
-    }, { passive: false });
-
-    document.addEventListener('gesturechange', (e) => {
-      if (!e.target.closest('#viewerContainer')) {
-        e.preventDefault();
-      }
-    }, { passive: false });
-
-    document.addEventListener('gestureend', (e) => {
-      if (!e.target.closest('#viewerContainer')) {
-        e.preventDefault();
-      }
-    }, { passive: false });
-
-    document.addEventListener('touchmove', (e) => {
-      if (e.touches && e.touches.length > 1 && !e.target.closest('#viewerContainer')) {
-        e.preventDefault();
-      }
-    }, { passive: false });
-
-    let lastTouchTime = 0;
-    document.addEventListener('touchend', (e) => {
-      if (e.target.closest('#viewerContainer') || e.target.closest('input, textarea, select, button, a')) {
-        return;
-      }
-      const now = Date.now();
-      if (now - lastTouchTime <= 300) {
-        e.preventDefault();
-      }
-      lastTouchTime = now;
-    }, { passive: false });
+    });
 
     // Cliques nos links de navegação
     document.querySelectorAll('[data-nav-tab]').forEach(btn => {
@@ -1643,53 +1612,8 @@ class FarmacoApp {
   }
 
   // ==========================================
-  // SELETOR DE MODO DE EXIBIÇÃO (MOBILE / PC / AUTO)
+  // FORÇAR ATUALIZAÇÃO / LIMPEZA DE CACHE
   // ==========================================
-  initViewMode() {
-    try {
-      const savedMode = localStorage.getItem('farmaco_view_mode') || 'auto';
-      this.setViewMode(savedMode, false);
-    } catch (e) {
-      console.warn('Erro ao carregar modo de exibição:', e);
-    }
-  }
-
-  setViewMode(mode, showNotification = true) {
-    this.viewMode = mode;
-    try {
-      localStorage.setItem('farmaco_view_mode', mode);
-    } catch (e) {}
-
-    const body = document.body;
-    body.classList.remove('force-mobile-mode', 'force-desktop-mode');
-
-    if (mode === 'mobile') {
-      body.classList.add('force-mobile-mode');
-    } else if (mode === 'desktop') {
-      body.classList.add('force-desktop-mode');
-    }
-
-    // Atualiza classes visuais dos botões do seletor
-    const autoBtn = document.getElementById('viewModeAutoBtn');
-    const mobileBtn = document.getElementById('viewModeMobileBtn');
-    const desktopBtn = document.getElementById('viewModeDesktopBtn');
-
-    if (autoBtn) autoBtn.className = mode === 'auto' ? 'px-2 py-0.5 rounded text-[10px] font-bold transition bg-teal-600 text-white shadow-xs' : 'px-2 py-0.5 rounded text-[10px] font-bold transition text-slate-400 hover:text-white';
-    if (mobileBtn) mobileBtn.className = mode === 'mobile' ? 'px-2 py-0.5 rounded text-[10px] font-bold transition bg-teal-600 text-white shadow-xs' : 'px-2 py-0.5 rounded text-[10px] font-bold transition text-slate-400 hover:text-white';
-    if (desktopBtn) desktopBtn.className = mode === 'desktop' ? 'px-2 py-0.5 rounded text-[10px] font-bold transition bg-teal-600 text-white shadow-xs' : 'px-2 py-0.5 rounded text-[10px] font-bold transition text-slate-400 hover:text-white';
-
-    if (showNotification) {
-      const modeNames = {
-        auto: 'Modo Automático ativado (responsivo nativo)',
-        mobile: '📱 Modo Celular forçado com sucesso!',
-        desktop: '💻 Modo Computador (PC) forçado com sucesso!'
-      };
-      this.showToast(modeNames[mode] || 'Modo atualizado');
-    }
-
-    if (window.lucide) window.lucide.createIcons();
-  }
-
   async forceHardRefresh() {
     this.showToast('Limpando cache do navegador e service worker...');
     try {

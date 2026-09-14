@@ -3,7 +3,7 @@
  * Network-First Strategy para atualizações em tempo real + Cache Offline
  */
 
-const CACHE_NAME = 'farmacologia-conectada-v2.2.0';
+const CACHE_NAME = 'farmacologia-conectada-v2.3.0';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
