@@ -140,15 +140,25 @@ class FarmacoApp {
     this.currentTab = tabId;
     window.location.hash = tabId;
 
-    // Atualiza classes dos botões na sidebar e bottom nav
-    document.querySelectorAll('[data-nav-tab]').forEach(btn => {
+    // Atualiza classes dos botões na sidebar (Desktop)
+    document.querySelectorAll('aside [data-nav-tab]').forEach(btn => {
       const target = btn.getAttribute('data-nav-tab');
       if (target === tabId) {
         btn.classList.add('bg-teal-600', 'text-white', 'shadow-md', 'shadow-teal-900/20');
-        btn.classList.remove('text-slate-600', 'hover:bg-slate-100', 'hover:text-slate-900', 'text-slate-400');
+        btn.classList.remove('text-slate-600', 'hover:bg-slate-100', 'hover:text-slate-900');
       } else {
         btn.classList.remove('bg-teal-600', 'text-white', 'shadow-md', 'shadow-teal-900/20');
         btn.classList.add('text-slate-600', 'hover:bg-slate-100', 'hover:text-slate-900');
+      }
+    });
+
+    // Atualiza classes dos botões no rodapé fixo (Mobile)
+    document.querySelectorAll('#bottomNav [data-nav-tab]').forEach(btn => {
+      const target = btn.getAttribute('data-nav-tab');
+      if (target === tabId) {
+        btn.className = 'flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl text-teal-600 font-bold bg-teal-50 transition text-[10px]';
+      } else {
+        btn.className = 'flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl text-slate-400 hover:text-slate-600 font-semibold transition text-[10px]';
       }
     });
 

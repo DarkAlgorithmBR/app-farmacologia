@@ -179,77 +179,63 @@ class MapViewerEngine {
       container.classList.remove('cursor-grabbing');
     });
 
-    // Double Click / Double Tap to toggle 100% / 200%
-    container.addEventListener('dblclick', () => {
-      if (this.scale > 1.2) {
-        this.resetZoom();
-      } else {
-        this.scale = 2;
-        this.updateTransform();
-      }
-    });
-
-    // Mobile Double Tap detection
-    let lastTap = 0;
-    container.addEventListener('touchend', (e) => {
-      const currentTime = new Date().getTime();
-      const tapLength = currentTime - lastTap;
-      if (tapLength < 300 && tapLength > 0 && e.changedTouches.length === 1) {
-        // Double tap detected
-        if (this.scale > 1.2) {
-          this.resetZoom();
-        } else {
-          this.scale = 2;
-          this.updateTransform();
-        }
-        e.preventDefault();
-      }
-      lastTap = currentTime;
-
-      if (e.touches.length === 0) {
-        this.isPanning = false;
-        this.pinchStartDistance = 0;
-      }
-    });
-
     // Mouse Wheel Zoom
     container.addEventListener('wheel', (e) => {
       e.preventDefault();
-      const delta = -Math.sign(e.deltaY) * 0.18;
+      const delta = -Math.sign(e.deltaY) * 0.2;
       const newScale = Math.min(Math.max(this.scale + delta, this.minScale), this.maxScale);
       this.scale = newScale;
       this.updateTransform();
     }, { passive: false });
 
-    // Touch Pinch-to-Zoom & Pan with touch-action isolation
+    // Touch Gestures (Pinch-to-Zoom & Pan) - Estável e sem reset automático
+    let isPinching = false;
+    let pinchStartDist = 0;
+    let pinchStartScale = 1;
+
     container.addEventListener('touchstart', (e) => {
       if (e.touches.length === 1) {
+        isPinching = false;
         this.isPanning = true;
         this.startX = e.touches[0].clientX - this.pointX;
         this.startY = e.touches[0].clientY - this.pointY;
       } else if (e.touches.length === 2) {
         this.isPanning = false;
-        this.pinchStartDistance = this.getTouchDistance(e.touches);
-        this.initialScale = this.scale;
+        isPinching = true;
+        pinchStartDist = this.getTouchDistance(e.touches);
+        pinchStartScale = this.scale;
       }
     }, { passive: false });
 
     container.addEventListener('touchmove', (e) => {
-      if (e.touches.length === 1 && this.isPanning) {
-        if (e.cancelable) e.preventDefault();
+      if (e.cancelable) e.preventDefault();
+
+      if (e.touches.length === 1 && this.isPanning && !isPinching) {
         this.pointX = e.touches[0].clientX - this.startX;
         this.pointY = e.touches[0].clientY - this.startY;
         this.updateTransform();
-      } else if (e.touches.length === 2) {
-        if (e.cancelable) e.preventDefault();
-        const currentDistance = this.getTouchDistance(e.touches);
-        if (this.pinchStartDistance > 0) {
-          const factor = currentDistance / this.pinchStartDistance;
-          this.scale = Math.min(Math.max(this.initialScale * factor, this.minScale), this.maxScale);
+      } else if (e.touches.length === 2 && isPinching) {
+        const currentDist = this.getTouchDistance(e.touches);
+        if (pinchStartDist > 0) {
+          const factor = currentDist / pinchStartDist;
+          this.scale = Math.min(Math.max(pinchStartScale * factor, this.minScale), this.maxScale);
           this.updateTransform();
         }
       }
     }, { passive: false });
+
+    container.addEventListener('touchend', (e) => {
+      if (e.touches.length === 0) {
+        this.isPanning = false;
+        if (isPinching) {
+          setTimeout(() => { isPinching = false; }, 300);
+        }
+      } else if (e.touches.length === 1) {
+        this.isPanning = true;
+        this.startX = e.touches[0].clientX - this.pointX;
+        this.startY = e.touches[0].clientY - this.pointY;
+      }
+    });
   }
 
   getTouchDistance(touches) {
