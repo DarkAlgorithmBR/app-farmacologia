@@ -193,6 +193,43 @@ class FarmacoApp {
   }
 
   bindGlobalEvents() {
+    // Bloqueio rigoroso de zoom nativo da página inteira no celular (Safari/Chrome Mobile)
+    document.addEventListener('gesturestart', (e) => {
+      if (!e.target.closest('#viewerContainer')) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    document.addEventListener('gesturechange', (e) => {
+      if (!e.target.closest('#viewerContainer')) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    document.addEventListener('gestureend', (e) => {
+      if (!e.target.closest('#viewerContainer')) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    document.addEventListener('touchmove', (e) => {
+      if (e.touches && e.touches.length > 1 && !e.target.closest('#viewerContainer')) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    let lastTouchTime = 0;
+    document.addEventListener('touchend', (e) => {
+      if (e.target.closest('#viewerContainer') || e.target.closest('input, textarea, select, button, a')) {
+        return;
+      }
+      const now = Date.now();
+      if (now - lastTouchTime <= 300) {
+        e.preventDefault();
+      }
+      lastTouchTime = now;
+    }, { passive: false });
+
     // Cliques nos links de navegação
     document.querySelectorAll('[data-nav-tab]').forEach(btn => {
       btn.addEventListener('click', (e) => {

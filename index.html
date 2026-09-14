@@ -2,7 +2,7 @@
 <html lang="pt-BR" class="h-full bg-slate-50">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Farmacologia Conectada | Área de Estudos Interativa</title>
   <meta name="description" content="Plataforma interativa de mapas mentais em alta definição, dicionário de fármacos, questões comentadas e calculadoras clínicas para estudantes de Medicina, Farmácia, Enfermagem e Biomedicina.">
   <meta name="theme-color" content="#0D9488">
@@ -44,34 +44,37 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="./assets/css/styles.css?v=2.0.0">
+  <link rel="stylesheet" href="./assets/css/styles.css?v=2.1.0">
 </head>
-<body class="min-h-full flex flex-col bg-slate-50 text-slate-800 antialiased selection:bg-teal-500 selection:text-white pb-20 md:pb-0">
+<body class="min-h-full flex flex-col bg-slate-50 text-slate-800 antialiased selection:bg-teal-500 selection:text-white pb-20 md:pb-0 overflow-x-hidden w-full max-w-full">
 
   <!-- TOP HEADER FIXO -->
   <header class="sticky top-0 z-40 w-full glass-nav border-b border-slate-200/80 shadow-xs transition-all">
-    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2 sm:gap-4">
+    <div class="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2">
       
       <!-- Brand Logo -->
-      <div class="flex items-center space-x-2 shrink-0 cursor-pointer" onclick="window.app.switchTab('maps')">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-teal-700 to-teal-500 flex items-center justify-center text-white shadow-md shadow-teal-700/20">
+      <div class="flex items-center space-x-1.5 sm:space-x-2 shrink-0 cursor-pointer" onclick="window.app.switchTab('maps')">
+        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-teal-700 to-teal-500 flex items-center justify-center text-white shadow-md shadow-teal-700/20 shrink-0">
           <i data-lucide="pill" class="w-4 h-4"></i>
         </div>
-        <div>
+        <div class="flex flex-col">
           <div class="flex items-center space-x-1">
-            <h1 class="text-sm md:text-lg font-extrabold text-slate-950 tracking-tight">Farmacologia<span class="text-teal-600 font-black">Conectada</span></h1>
-            <span class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-teal-100 text-teal-800 border border-teal-200">PRO</span>
+            <h1 class="text-xs sm:text-base md:text-lg font-extrabold text-slate-950 tracking-tight leading-none">
+              <span class="inline sm:hidden">Farmaco<span class="text-teal-600 font-black">PRO</span></span>
+              <span class="hidden sm:inline">Farmacologia<span class="text-teal-600 font-black">Conectada</span></span>
+            </h1>
+            <span class="hidden sm:inline px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-teal-100 text-teal-800 border border-teal-200">PRO</span>
           </div>
-          <p class="text-[10px] text-slate-500 hidden sm:block">Área de Membros & Estudos</p>
+          <p class="text-[9px] text-slate-500 hidden sm:block leading-none mt-0.5">Área de Membros & Estudos</p>
         </div>
       </div>
 
       <!-- Barra de Busca Global (Ctrl + K) -->
       <div class="flex-1 min-w-0 max-w-md mx-1 sm:mx-2">
-        <button data-open-global-search class="w-full flex items-center justify-between px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-slate-100 hover:bg-slate-200/80 border border-slate-200 text-slate-500 text-xs sm:text-sm transition group shadow-2xs">
+        <button data-open-global-search class="w-full flex items-center justify-between px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-slate-100 hover:bg-slate-200/80 border border-slate-200/80 text-slate-500 text-xs sm:text-sm transition group shadow-2xs">
           <span class="flex items-center space-x-1.5 truncate">
             <i data-lucide="search" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 group-hover:text-teal-600 transition shrink-0"></i>
-            <span class="truncate">Buscar...</span>
+            <span class="truncate">Buscar mapas, fármacos...</span>
           </span>
           <kbd class="hidden md:inline-flex items-center gap-1 font-mono text-[10px] font-semibold bg-white border border-slate-300 px-1.5 py-0.5 rounded text-slate-500 shadow-2xs">
             Ctrl K
@@ -80,9 +83,9 @@
       </div>
 
       <!-- Quick Actions & Global Progress -->
-      <div class="flex items-center space-x-1.5 sm:space-x-3 shrink-0">
+      <div class="flex items-center space-x-1 sm:space-x-3 shrink-0">
         <!-- Barra de Progresso Rápida -->
-        <div class="hidden lg:flex items-center space-x-3 bg-white px-3.5 py-1.5 rounded-xl border border-slate-200 shadow-2xs" onclick="window.app.switchTab('dashboard')" title="Ver Dashboard de Estudos" role="button">
+        <div class="hidden lg:flex items-center space-x-3 bg-white px-3.5 py-1.5 rounded-xl border border-slate-200 shadow-2xs cursor-pointer" onclick="window.app.switchTab('dashboard')" title="Ver Dashboard de Estudos" role="button">
           <div class="text-right">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block leading-tight">Progresso</span>
             <span id="globalProgressPercent" class="text-xs font-black text-teal-700">0%</span>
@@ -731,14 +734,14 @@
   </div>
 
   <!-- SCRIPTS DA APLICAÇÃO (ORDEM DE DEPENDÊNCIA) -->
-  <script src="./assets/js/storage.js?v=2.0.0"></script>
-  <script src="./assets/js/maps-data.js?v=2.0.0"></script>
-  <script src="./assets/js/dictionary-data.js?v=2.0.0"></script>
-  <script src="./assets/js/bonus-data.js?v=2.0.0"></script>
-  <script src="./assets/js/quiz-data.js?v=2.0.0"></script>
-  <script src="./assets/js/calculator.js?v=2.0.0"></script>
-  <script src="./assets/js/viewer.js?v=2.0.0"></script>
-  <script src="./assets/js/app.js?v=2.0.0"></script>
+  <script src="./assets/js/storage.js?v=2.1.0"></script>
+  <script src="./assets/js/maps-data.js?v=2.1.0"></script>
+  <script src="./assets/js/dictionary-data.js?v=2.1.0"></script>
+  <script src="./assets/js/bonus-data.js?v=2.1.0"></script>
+  <script src="./assets/js/quiz-data.js?v=2.1.0"></script>
+  <script src="./assets/js/calculator.js?v=2.1.0"></script>
+  <script src="./assets/js/viewer.js?v=2.1.0"></script>
+  <script src="./assets/js/app.js?v=2.1.0"></script>
 
 </body>
 </html>
