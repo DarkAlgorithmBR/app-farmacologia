@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Farmacologia Conectada | Área de Estudos Interativa</title>
+  <meta name="description" content="Plataforma interativa de mapas mentais em alta definição, dicionário de fármacos, questões comentadas e calculadoras clínicas para estudantes de Medicina, Farmácia, Enfermagem e Biomedicina.">
+  <meta name="theme-color" content="#0D9488">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FarmacoApp">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/svg+xml" href="./assets/images/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="./assets/images/icons/icon-192.svg">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            teal: {
+              50: '#F0FDFA',
+              100: '#CCFBF1',
+              200: '#99F6E4',
+              300: '#5EEAD4',
+              400: '#2DD4BF',
+              500: '#14B8A6',
+              600: '#0D9488',
+              700: '#0F766E',
+              800: '#115E59',
+              900: '#134E4A',
+              950: '#042F2E',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="./assets/css/styles.css">
+</head>
+<body class="min-h-full flex flex-col bg-slate-50 text-slate-800 antialiased selection:bg-teal-500 selection:text-white pb-20 md:pb-0">
+
+  <!-- TOP HEADER FIXO -->
+  <header class="sticky top-0 z-40 w-full glass-nav border-b border-slate-200/80 shadow-xs transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="window.app.switchTab('maps')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-700 to-teal-500 flex items-center justify-center text-white shadow-md shadow-teal-700/20">
+          <i data-lucide="pill" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-1.5">
+            <h1 class="text-base md:text-lg font-extrabold text-slate-950 tracking-tight">Farmacologia<span class="text-teal-600 font-black">Conectada</span></h1>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-800 border border-teal-200">PRO</span>
+          </div>
+          <p class="text-[11px] text-slate-500 hidden sm:block">Área de Membros & Estudos Interativos</p>
+        </div>
+      </div>
+
+      <!-- Barra de Busca Global (Ctrl + K) -->
+      <div class="flex-1 max-w-md mx-2">
+        <button data-open-global-search class="w-full flex items-center justify-between px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200/80 border border-slate-200 text-slate-500 text-xs md:text-sm transition group shadow-2xs">
+          <span class="flex items-center space-x-2">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 group-hover:text-teal-600 transition"></i>
+            <span class="truncate">Buscar mapas, fármacos, cálculos...</span>
+          </span>
+          <kbd class="hidden md:inline-flex items-center gap-1 font-mono text-[10px] font-semibold bg-white border border-slate-300 px-1.5 py-0.5 rounded text-slate-500 shadow-2xs">
+            Ctrl K
+          </kbd>
+        </button>
+      </div>
+
+      <!-- Quick Actions & Global Progress -->
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <!-- Barra de Progresso Rápida -->
+        <div class="hidden lg:flex items-center space-x-3 bg-white px-3.5 py-1.5 rounded-xl border border-slate-200 shadow-2xs" onclick="window.app.switchTab('dashboard')" title="Ver Dashboard de Estudos" role="button">
+          <div class="text-right">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block leading-tight">Progresso</span>
+            <span id="globalProgressPercent" class="text-xs font-black text-teal-700">0%</span>
+          </div>
+          <div class="w-16 bg-slate-100 h-2 rounded-full overflow-hidden">
+            <div id="globalProgressFill" class="bg-teal-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Botão PWA Instalar -->
+        <button id="pwaInstallBtn" class="inline-flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 transition shadow-sm active-press" title="Instalar aplicativo no seu celular ou computador">
+          <i data-lucide="smartphone" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Instalar App</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CORPO PRINCIPAL COM SIDEBAR NO DESKTOP -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1 flex flex-col md:flex-row gap-6">
+
+    <!-- DESKTOP SIDEBAR -->
+    <aside class="hidden md:block w-64 shrink-0">
+      <nav class="sticky top-24 space-y-1 bg-white p-3 rounded-2xl border border-slate-200 shadow-xs">
+        <div class="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          Navegação Principal
+        </div>
+
+        <!-- 1. Mapas Mentais -->
+        <button data-nav-tab="maps" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition text-left">
+          <i data-lucide="map" class="w-4 h-4 shrink-0"></i>
+          <span>Biblioteca de Mapas</span>
+        </button>
+
+        <!-- 2. Super Bônus -->
+        <button data-nav-tab="bonus" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition text-left">
+          <i data-lucide="gift" class="w-4 h-4 shrink-0"></i>
+          <span>Super Bônus</span>
+          <span class="ml-auto text-[10px] font-extrabold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-md">4 Guias</span>
+        </button>
+
+        <!-- 3. Dicionário de Fármacos -->
+        <button data-nav-tab="dictionary" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition text-left">
+          <i data-lucide="book-open" class="w-4 h-4 shrink-0"></i>
+          <span>Guia & Dicionário</span>
+          <span class="ml-auto text-[10px] font-bold text-slate-400">+80</span>
+        </button>
+
+        <!-- 4. Quiz & Flashcards -->
+        <button data-nav-tab="quiz" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition text-left">
+          <i data-lucide="brain" class="w-4 h-4 shrink-0"></i>
+          <span>Quiz & Flashcards</span>
+        </button>
+
+        <!-- 5. Calculadora Farmacométrica -->
+        <button data-nav-tab="calculator" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition text-left">
+          <i data-lucide="calculator" class="w-4 h-4 shrink-0"></i>
+          <span>Calculadora Clínica</span>
+        </button>
+
+        <div class="pt-4 mt-4 border-t border-slate-100 px-3 py-1">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+            Meu Desempenho
+          </div>
+          <button data-nav-tab="dashboard" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition text-left text-slate-600 hover:bg-slate-100">
+            <i data-lucide="bar-chart-3" class="w-4 h-4 shrink-0 text-teal-600"></i>
+            <span>Painel de Estatísticas</span>
+          </button>
+        </div>
+
+        <!-- Banner de Suporte / Dica de Estudo -->
+        <div class="mt-4 p-3.5 bg-gradient-to-br from-teal-50 to-emerald-50 rounded-xl border border-teal-100 text-xs text-teal-950">
+          <div class="flex items-center space-x-1.5 font-bold mb-1 text-teal-800">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-teal-600"></i>
+            <span>Estudo Ativo Diário</span>
+          </div>
+          <p class="text-[11px] text-teal-800/80 leading-relaxed">
+            Revise 1 mapa mental e 5 flashcards por dia para fixar mecanismos de ação na memória de longo prazo.
+          </p>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL (SPA CONTAINER) -->
+    <main class="flex-1 w-full min-w-0">
+
+      <!-- ================================================================= -->
+      <!-- 1. ABA: BIBLIOTECA DE MAPAS MENTAIS -->
+      <!-- ================================================================= -->
+      <section id="tab-maps" class="app-tab-section space-y-6">
+        <!-- Hero Header -->
+        <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-6 md:p-8 text-white relative overflow-hidden shadow-xl border border-slate-800">
+          <div class="relative z-10 max-w-2xl">
+            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30 mb-3">
+              <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+              <span>+100 Mapas Visuais em Alta Definição</span>
+            </div>
+            <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white mb-2">
+              Biblioteca de Mapas Mentais
+            </h2>
+            <p class="text-slate-300 text-xs md:text-sm leading-relaxed mb-4">
+              Domine os mecanismos farmacológicos, alvos de receptores e efeitos clínicos através de resumos visuais de alta retenção mnemônica.
+            </p>
+            <div class="flex flex-wrap items-center gap-3 text-xs">
+              <div class="flex items-center space-x-1.5 bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700">
+                <i data-lucide="zoom-in" class="w-4 h-4 text-teal-400"></i>
+                <span>Zoom & Pan Inteligente</span>
+              </div>
+              <div class="flex items-center space-x-1.5 bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700">
+                <i data-lucide="download" class="w-4 h-4 text-teal-400"></i>
+                <span>Download em Alta Resolução</span>
+              </div>
+            </div>
+          </div>
+          <!-- Decorativo de Fundo -->
+          <div class="absolute -right-10 -bottom-10 w-72 h-72 rounded-full bg-teal-500/10 blur-3xl pointer-events-none"></div>
+        </div>
+
+        <!-- Barra de Ferramentas: Busca + Filtros de Categoria & Status -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+          <!-- Busca Textual -->
+          <div class="relative">
+            <i data-lucide="search" class="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input type="text" id="mapSearchInput" placeholder="Buscar por fármaco, receptor, classe ou palavra-chave (ex: 'SNA', 'Atropina', 'MRSA')..." class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-100 text-xs md:text-sm outline-hidden transition">
+          </div>
+
+          <!-- Filtros de Status (Todos, Favoritos, Estudados, Pendentes) -->
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
+            <div class="flex items-center space-x-1">
+              <span class="text-xs font-semibold text-slate-500 mr-1 hidden sm:inline">Exibir:</span>
+              <button data-map-status-filter="all" class="px-3 py-1 rounded-lg text-xs font-semibold transition bg-teal-600 text-white">Todos</button>
+              <button data-map-status-filter="favorites" class="px-3 py-1 rounded-lg text-xs font-semibold transition bg-white text-slate-700 hover:bg-slate-50">Favoritos ⭐</button>
+              <button data-map-status-filter="completed" class="px-3 py-1 rounded-lg text-xs font-semibold transition bg-white text-slate-700 hover:bg-slate-50">Estudados ✓</button>
+              <button data-map-status-filter="pending" class="px-3 py-1 rounded-lg text-xs font-semibold transition bg-white text-slate-700 hover:bg-slate-50">Pendentes</button>
+            </div>
+            
+            <span id="globalCompletedCount" class="text-xs font-bold text-slate-500">0/0 Mapas</span>
+          </div>
+
+          <!-- Pílulas de Módulos Farmacológicos (Carrossel Horizontal) -->
+          <div id="mapCategoriesPills" class="flex items-center space-x-2 overflow-x-auto pb-1 no-scrollbar">
+            <!-- Gerado dinamicamente via JS -->
+          </div>
+        </div>
+
+        <!-- Grid de Cards de Mapas Mentais -->
+        <div id="mapsGridContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <!-- Cards injetados via JS -->
+        </div>
+
+        <!-- Empty State se nada for encontrado -->
+        <div id="mapsEmptyState" class="hidden text-center py-12 bg-white rounded-2xl border border-slate-200 p-8">
+          <i data-lucide="search-x" class="w-12 h-12 text-slate-400 mx-auto mb-3"></i>
+          <h3 class="text-base font-bold text-slate-900 mb-1">Nenhum mapa encontrado</h3>
+          <p class="text-xs text-slate-500">Tente ajustar seus termos de busca ou mudar a categoria selecionada.</p>
+        </div>
+      </section>
+
+
+      <!-- ================================================================= -->
+      <!-- 2. ABA: SUPER BÔNUS EXCLUSIVOS -->
+      <!-- ================================================================= -->
+      <section id="tab-bonus" class="app-tab-section hidden space-y-6">
+        <!-- Header Bônus -->
+        <div class="bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 rounded-3xl p-6 md:p-8 text-slate-950 shadow-xl relative overflow-hidden">
+          <div class="relative z-10 max-w-2xl">
+            <span class="inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-extrabold bg-slate-950 text-amber-400 mb-3 uppercase tracking-wider">
+              <i data-lucide="gift" class="w-3.5 h-3.5"></i>
+              <span>Super Bônus Incluídos</span>
+            </span>
+            <h2 class="text-2xl md:text-3xl font-black tracking-tight mb-2">
+              4 Guias & Mapas Mestres Exclusivos
+            </h2>
+            <p class="text-slate-900 text-xs md:text-sm font-medium leading-relaxed">
+              Materiais sintetizados em formato de alta densidade clínica para tirar dúvidas rápidas no ambulatório, enfermaria ou pronto-socorro.
+            </p>
+          </div>
+        </div>
+
+        <!-- Grid de Bônus -->
+        <div id="bonusGridContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Bônus renderizados via JS -->
+        </div>
+      </section>
+
+
+      <!-- ================================================================= -->
+      <!-- 3. ABA: GUIA RÁPIDO & DICIONÁRIO DE FÁRMACOS -->
+      <!-- ================================================================= -->
+      <section id="tab-dictionary" class="app-tab-section hidden space-y-6">
+        <!-- Header Dicionário -->
+        <div class="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-xs">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center space-x-2 mb-2">
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-100 text-teal-800">Prática Clínica</span>
+                <span class="text-xs text-slate-400">+80 Fármacos Essenciais</span>
+              </div>
+              <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+                Guia Rápido de Fármacos (A-Z)
+              </h2>
+              <p class="text-xs md:text-sm text-slate-600 mt-1">
+                Consulte em segundos: Mecanismo de Ação, Indicações, Efeitos Adversos Críticos e Dicas de Prova.
+              </p>
+            </div>
+
+            <!-- Busca Instantânea -->
+            <div class="w-full md:w-80 relative">
+              <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+              <input type="text" id="dictionarySearchInput" placeholder="Buscar por fármaco, classe ou uso..." class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-teal-600 text-xs md:text-sm outline-hidden transition">
+            </div>
+          </div>
+
+          <!-- Filtros de Sistemas -->
+          <div id="dictionaryCategoryFilters" class="flex items-center space-x-2 overflow-x-auto pt-4 mt-4 border-t border-slate-100 pb-1 no-scrollbar">
+            <!-- Gerado via JS -->
+          </div>
+        </div>
+
+        <!-- Lista de Fármacos -->
+        <div id="dictionaryListContainer" class="space-y-4">
+          <!-- Itens do dicionário injetados via JS -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="dictionaryEmptyState" class="hidden text-center py-12 bg-white rounded-2xl border border-slate-200 p-8">
+          <i data-lucide="pill" class="w-12 h-12 text-slate-300 mx-auto mb-3"></i>
+          <h3 class="text-base font-bold text-slate-900 mb-1">Nenhum medicamento encontrado</h3>
+          <p class="text-xs text-slate-500">Tente buscar por outro termo ou nome genérico.</p>
+        </div>
+      </section>
+
+
+      <!-- ================================================================= -->
+      <!-- 4. ABA: QUIZ DE FIXAÇÃO & FLASHCARDS -->
+      <!-- ================================================================= -->
+      <section id="tab-quiz" class="app-tab-section hidden space-y-6">
+        <!-- Submenu do Quiz: Alternar entre Simulado de Questões e Flashcards 3D -->
+        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <button id="quizTabModeQuestions" class="px-4 py-2 rounded-xl text-xs md:text-sm font-bold bg-teal-600 text-white shadow-xs transition" onclick="document.getElementById('quizQuestionsView').classList.remove('hidden'); document.getElementById('quizFlashcardsView').classList.add('hidden'); this.className='px-4 py-2 rounded-xl text-xs md:text-sm font-bold bg-teal-600 text-white shadow-xs transition'; document.getElementById('quizTabModeFlashcards').className='px-4 py-2 rounded-xl text-xs md:text-sm font-semibold text-slate-600 hover:bg-slate-100 transition';">
+              📝 Simulado de Questões
+            </button>
+            <button id="quizTabModeFlashcards" class="px-4 py-2 rounded-xl text-xs md:text-sm font-semibold text-slate-600 hover:bg-slate-100 transition" onclick="document.getElementById('quizQuestionsView').classList.add('hidden'); document.getElementById('quizFlashcardsView').classList.remove('hidden'); this.className='px-4 py-2 rounded-xl text-xs md:text-sm font-bold bg-teal-600 text-white shadow-xs transition'; document.getElementById('quizTabModeQuestions').className='px-4 py-2 rounded-xl text-xs md:text-sm font-semibold text-slate-600 hover:bg-slate-100 transition';">
+              🗂️ Flashcards 3D
+            </button>
+          </div>
+          <span class="text-xs font-bold text-slate-400 hidden sm:inline">Modo Fixação Ativa</span>
+        </div>
+
+        <!-- MODO 1: QUESTÕES COMENTADAS -->
+        <div id="quizQuestionsView" class="space-y-6">
+          <!-- Filtro de Categorias do Quiz -->
+          <div id="quizCategoryPills" class="flex items-center space-x-2 overflow-x-auto pb-1 no-scrollbar">
+            <!-- Pílulas via JS -->
+          </div>
+
+          <!-- Card da Questão -->
+          <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 md:p-8">
+            <div id="quizCardContainer">
+              <!-- Conteúdo da questão via JS -->
+            </div>
+            <div id="quizResultBox" class="mt-6 hidden">
+              <!-- Justificativa da resposta injetada via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- MODO 2: FLASHCARDS 3D -->
+        <div id="quizFlashcardsView" class="hidden space-y-6">
+          <div class="max-w-xl mx-auto space-y-4">
+            <!-- Controles de Navegação do Flashcard -->
+            <div class="flex items-center justify-between text-xs text-slate-500 px-2">
+              <span id="flashcardCounter" class="font-bold">Card 1 de 8</span>
+              <button id="flashcardMasterBtn" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center space-x-1">
+                <i data-lucide="brain" class="w-3.5 h-3.5"></i>
+                <span>Marcar como Dominado</span>
+              </button>
+            </div>
+
+            <!-- Flashcard 3D Element (Click to Flip) -->
+            <div class="perspective-1000 h-80 sm:h-96 w-full">
+              <div id="flashcardElement" class="w-full h-full">
+                <!-- Conteúdo do card injetado via JS -->
+              </div>
+            </div>
+
+            <!-- Botões Anterior / Próximo -->
+            <div class="flex items-center justify-between pt-2">
+              <button id="flashcardPrevBtn" class="px-5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 font-bold text-xs md:text-sm text-slate-700 transition flex items-center space-x-1.5 shadow-2xs">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                <span>Anterior</span>
+              </button>
+              <button id="flashcardNextBtn" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 font-bold text-xs md:text-sm text-white transition flex items-center space-x-1.5 shadow-xs">
+                <span>Próximo</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ================================================================= -->
+      <!-- 5. ABA: CALCULADORA FARMACOMÉTRICA -->
+      <!-- ================================================================= -->
+      <section id="tab-calculator" class="app-tab-section hidden space-y-6">
+        <div class="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-xs">
+          <div class="mb-6">
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-100 text-teal-800">Ferramenta Clínica</span>
+            <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mt-1">
+              Calculadora Farmacométrica & Diluições
+            </h2>
+            <p class="text-xs md:text-sm text-slate-600 mt-1">
+              5 calculadoras essenciais para prescrição, diluição de ampolas e ajuste renal.
+            </p>
+          </div>
+
+          <!-- Abas da Calculadora -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- 1. GOTEJAMENTO E INFUSÃO -->
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center space-x-2 mb-3">
+                  <div class="w-8 h-8 rounded-lg bg-teal-600 text-white flex items-center justify-center font-bold text-xs">1</div>
+                  <h4 class="font-bold text-slate-900 text-base">Cálculo de Gotejamento</h4>
+                </div>
+                <div class="space-y-3 text-xs">
+                  <div>
+                    <label class="block text-slate-600 font-semibold mb-1">Volume da Solução (mL):</label>
+                    <input type="number" id="gotVolInput" placeholder="Ex: 500" value="500" class="w-full p-2.5 rounded-xl bg-white border border-slate-200 focus:border-teal-600 outline-hidden">
+                  </div>
+                  <div class="grid grid-cols-2 gap-2">
+                    <div>
+                      <label class="block text-slate-600 font-semibold mb-1">Tempo:</label>
+                      <input type="number" id="gotTimeInput" placeholder="Ex: 8" value="8" class="w-full p-2.5 rounded-xl bg-white border border-slate-200 focus:border-teal-600 outline-hidden">
+                    </div>
+                    <div>
+                      <label class="block text-slate-600 font-semibold mb-1">Unidade:</label>
+                      <select id="gotUnitSelect" class="w-full p-2.5 rounded-xl bg-white border border-slate-200 focus:border-teal-600 outline-hidden">
+                        <option value="hours">Horas</option>
+                        <option value="minutes">Minutos</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4">
+                <button id="calcGotejamentoBtn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 rounded-xl text-xs transition mb-3">
+                  Calcular Gotejamento
+                </button>
+                <div id="gotResultBox" class="hidden"></div>
+              </div>
+            </div>
+
+            <!-- 2. REGRA DE TRÊS E DILUIÇÃO -->
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center space-x-2 mb-3">
+                  <div class="w-8 h-8 rounded-lg bg-teal-600 text-white flex items-center justify-center font-bold text-xs">2</div>
+                  <h4 class="font-bold text-slate-900 text-base">Regra de Três / Diluição de Ampola</h4>
+                </div>
+                <div class="space-y-3 text-xs">
+                  <div class="grid grid-cols-2 gap-2">
+                    <div>
+                      <label class="block text-slate-600 font-semibold mb-1">Ampola Disponível (mg):</label>
+                      <input type="number" id="dilAmpMg" placeholder="Ex: 500" value="500" class="w-full p-2.5 rounded-xl bg-white border border-slate-200 focus:border-teal-600 outline-hidden">
+                    </div>
+                    <div>
+                      <label class="block text-slate-600 font-semibold mb-1">Volume da Ampola (mL):</label>
+                      <input type="number" id="dilAmpMl" placeholder="Ex: 5" value="5" class="w-full p-2.5 rounded-xl bg-white border border-slate-200 focus:border-teal-600 outline-hidden">
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-slate-600 font-semibold mb-1">Dose Prescrita Desejada (mg):</label>
+                    <input type="number" id="dilPrescritoMg" placeholder="Ex: 150" value="150" class="w-full p-2.5 rounded-xl bg-white border border-slate-200 focus:border-teal-600 outline-hidden">
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4">
+                <button id="calcDiluicaoBtn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 rounded-xl text-xs transition mb-3">
+                  Calcular Volume a Aspirar
+                </button>
+                <div id="dilResultBox" class="hidden"></div>
+              </div>
+            </div>
+
+            <!-- 3. DOSE PEDIÁTRICA E POR PESO -->
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center space-x-2 mb-3">
+                  <div class="w-8 h-8 rounded-lg bg-teal-600 text-white flex items-center justify-center font-bold text-xs">3</div>
+                  <h4 class="font-bold text-slate-900 text-base">Dose por Peso (Pediátrico / Adulto)</h4>
+                </div>
+                <div class="space-y-3 text-xs">
+                  <div class="grid grid-cols-2 gap-2">
+                    <div>
+                      <label class="block text-slate-600 font-semibold mb-1">Peso do Paciente (kg):</label>
+                      <input type="number" id="pedPeso" placeholder="Ex: 16" value="16" class="w-full p-2.5 rounded-xl bg-white border border-slate-200 focus:border-teal-600 outline-hidden">
+                    </div>
+                    <div>
+                      <label class="block text-slate-600 font-semibold mb-1">Dose Total (mg/kg/dia):</label>
+                      <input type="number" id="pedDoseKg" placeholder="Ex: 50" value="50" class="w-full p-2.5 rounded-xl bg-white border border-slate-200 focus:border-teal-600 outline-hidden">
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-slate-600 font-semibold mb-1">Fracionamento diário:</label>
+                    <select id="pedFreqSelect" class="w-full p-2.5 rounded-xl bg-white border border-slate-200 focus:border-teal-600 outline-hidden">
+                      <option value="3">8 em 8 horas (3x ao dia)</option>
+                      <option value="2">12 em 12 horas (2x ao dia)</option>
+                      <option value="1">24 em 24 horas (1x ao dia)</option>
+                      <option value="4">6 em 6 horas (4x ao dia)</option>
+                    </select>
+                  </div>
+                  <div class="grid grid-cols-2 gap-2">
+                    <div>
+                      <label class="block text-slate-600 font-semibold mb-1">Suspensão (mg):</label>
+                      <input type="number" id="pedSuspMg" placeholder="Ex: 250" value="250" class="w-full p-2.5 rounded-xl bg-white border border-slate-200 focus:border-teal-600 outline-hidden">
+                    </div>
+                    <div>
+                      <label class="block text-slate-600 font-semibold mb-1">Em cada (mL):</label>
+                      <input type="number" id="pedSuspMl" placeholder="Ex: 5" value="5" class="w-full p-2.5 rounded-xl bg-white border border-slate-200 focus:border-teal-600 outline-hidden">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4">
+                <button id="calcPedBtn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 rounded-xl text-xs transition mb-3">
+                  Calcular Posologia em mL
+                </button>
+                <div id="pedResultBox" class="hidden"></div>
+              </div>
+            </div>
+
+            <!-- 4. DROGAS VASOATIVAS (mcg/kg/min) -->
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center space-x-2 mb-2">
+                  <div class="w-8 h-8 rounded-lg bg-teal-600 text-white flex items-center justify-center font-bold text-xs">4</div>
+                  <h4 class="font-bold text-slate-900 text-base">Drogas Vasoativas / UTI</h4>
+                </div>
+
+                <!-- Presets Rápidos -->
+                <div class="flex flex-wrap gap-1 mb-3">
+                  <button data-vaso-preset="nora" class="px-2 py-0.5 rounded bg-slate-200 hover:bg-teal-100 text-[11px] font-semibold text-slate-700">Noradrenalina (4mg/100mL)</button>
+                  <button data-vaso-preset="dobuta" class="px-2 py-0.5 rounded bg-slate-200 hover:bg-teal-100 text-[11px] font-semibold text-slate-700">Dobutamina (250mg/250mL)</button>
+                  <button data-vaso-preset="tridil" class="px-2 py-0.5 rounded bg-slate-200 hover:bg-teal-100 text-[11px] font-semibold text-slate-700">Tridil (50mg/250mL)</button>
+                </div>
+
+                <div class="space-y-3 text-xs">
+                  <div class="grid grid-cols-3 gap-2">
+                    <div>
+                      <label class="block text-slate-600 font-semibold mb-1">Peso (kg):</label>
+                      <input type="number" id="vasoPeso" value="70" class="w-full p-2.5 rounded-xl bg-white border border-slate-200 focus:border-teal-600 outline-hidden">
+                    </div>
+                    <div>
+                      <label class="block text-slate-600 font-semibold mb-1">Droga (mg):</label>
+                      <input type="number" id="vasoDrogaMg" value="4" class="w-full p-2.5 rounded-xl bg-white border border-slate-200 focus:border-teal-600 outline-hidden">
+                    </div>
+                    <div>
+                      <label class="block text-slate-600 font-semibold mb-1">Solução (mL):</label>
+                      <input type="number" id="vasoVolMl" value="100" class="w-full p-2.5 rounded-xl bg-white border border-slate-200 focus:border-teal-600 outline-hidden">
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-slate-600 font-semibold mb-1">Modo de Cálculo:</label>
+                    <select id="vasoModeSelect" class="w-full p-2.5 rounded-xl bg-white border border-slate-200 focus:border-teal-600 outline-hidden" onchange="document.getElementById('vasoMlHGroup').classList.toggle('hidden', this.value !== 'mlToDose'); document.getElementById('vasoDoseMcgGroup').classList.toggle('hidden', this.value === 'mlToDose');">
+                      <option value="mlToDose">Tenho vazão em mL/h ➔ Quero dose (mcg/kg/min)</option>
+                      <option value="doseToMl">Tenho dose (mcg/kg/min) ➔ Quero vazão da bomba (mL/h)</option>
+                    </select>
+                  </div>
+                  <div id="vasoMlHGroup">
+                    <label class="block text-slate-600 font-semibold mb-1">Vazão da Bomba (mL/h):</label>
+                    <input type="number" id="vasoMlHInput" value="10" class="w-full p-2.5 rounded-xl bg-white border border-slate-200 focus:border-teal-600 outline-hidden">
+                  </div>
+                  <div id="vasoDoseMcgGroup" class="hidden">
+                    <label class="block text-slate-600 font-semibold mb-1">Dose Desejada (mcg/kg/min):</label>
+                    <input type="number" id="vasoDoseMcgInput" value="0.1" step="0.05" class="w-full p-2.5 rounded-xl bg-white border border-slate-200 focus:border-teal-600 outline-hidden">
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4">
+                <button id="calcVasoBtn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 rounded-xl text-xs transition mb-3">
+                  Calcular Infusão
+                </button>
+                <div id="vasoResultBox" class="hidden"></div>
+              </div>
+            </div>
+
+            <!-- 5. CLEARANCE DE CREATININA (COCKCROFT-GAULT) -->
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col justify-between lg:col-span-2">
+              <div>
+                <div class="flex items-center space-x-2 mb-3">
+                  <div class="w-8 h-8 rounded-lg bg-teal-600 text-white flex items-center justify-center font-bold text-xs">5</div>
+                  <h4 class="font-bold text-slate-900 text-base">Clearance de Creatinina Estimado (Fórmula de Cockcroft-Gault)</h4>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                  <div>
+                    <label class="block text-slate-600 font-semibold mb-1">Idade (anos):</label>
+                    <input type="number" id="clcrIdade" value="65" class="w-full p-2.5 rounded-xl bg-white border border-slate-200 focus:border-teal-600 outline-hidden">
+                  </div>
+                  <div>
+                    <label class="block text-slate-600 font-semibold mb-1">Peso (kg):</label>
+                    <input type="number" id="clcrPeso" value="70" class="w-full p-2.5 rounded-xl bg-white border border-slate-200 focus:border-teal-600 outline-hidden">
+                  </div>
+                  <div>
+                    <label class="block text-slate-600 font-semibold mb-1">Creatinina Sérica (mg/dL):</label>
+                    <input type="number" id="clcrCreatinina" value="1.4" step="0.1" class="w-full p-2.5 rounded-xl bg-white border border-slate-200 focus:border-teal-600 outline-hidden">
+                  </div>
+                  <div>
+                    <label class="block text-slate-600 font-semibold mb-1">Sexo Biológico:</label>
+                    <select id="clcrSexo" class="w-full p-2.5 rounded-xl bg-white border border-slate-200 focus:border-teal-600 outline-hidden">
+                      <option value="masculino">Masculino</option>
+                      <option value="feminino">Feminino (fator 0.85)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4">
+                <button id="calcClcrBtn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 rounded-xl text-xs transition mb-3">
+                  Calcular Clearance & Estadiamento Renal
+                </button>
+                <div id="clcrResultBox" class="hidden"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ================================================================= -->
+      <!-- 6. ABA: PAINEL DE ESTATÍSTICAS / DASHBOARD -->
+      <!-- ================================================================= -->
+      <section id="tab-dashboard" class="app-tab-section hidden space-y-6">
+        <div class="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-xs">
+          <div class="mb-6">
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-100 text-teal-800">Métricas & Progresso</span>
+            <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mt-1">
+              Seu Painel de Estudos
+            </h2>
+            <p class="text-xs md:text-sm text-slate-600 mt-1">
+              Acompanhe sua taxa de retenção, mapas estudados e precisão nos simulados.
+            </p>
+          </div>
+
+          <!-- Cards de Métricas -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200">
+              <span class="text-xs font-bold text-slate-400 block mb-1">Mapas Estudados</span>
+              <span id="dashCompletedMaps" class="text-2xl md:text-3xl font-black text-teal-700">0</span>
+            </div>
+            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200">
+              <span class="text-xs font-bold text-slate-400 block mb-1">Mapas Favoritados</span>
+              <span id="dashFavMaps" class="text-2xl md:text-3xl font-black text-amber-500">0</span>
+            </div>
+            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200">
+              <span class="text-xs font-bold text-slate-400 block mb-1">Acurácia no Quiz</span>
+              <span id="dashQuizAccuracy" class="text-2xl md:text-3xl font-black text-indigo-600">0%</span>
+            </div>
+            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200">
+              <span class="text-xs font-bold text-slate-400 block mb-1">Flashcards Dominados</span>
+              <span id="dashMasteredCards" class="text-2xl md:text-3xl font-black text-emerald-600">0</span>
+            </div>
+          </div>
+
+          <!-- Ação de Reset de Progresso -->
+          <div class="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <h4 class="text-sm font-bold text-slate-800">Gerenciar Dados Locais</h4>
+              <p class="text-xs text-slate-500">Seus dados ficam 100% salvos no seu navegador sem envio para servidores externos.</p>
+            </div>
+            <button onclick="if(confirm('Deseja realmente zerar seu progresso de estudos e favoritos?')) { window.FarmacoStorage.resetProgress(); window.app.updateStatsDisplay(); window.app.showToast('Progresso zerado com sucesso.'); }" class="px-4 py-2 rounded-xl text-xs font-semibold text-rose-600 border border-rose-200 hover:bg-rose-50 transition">
+              Zerar Histórico
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MOBILE BOTTOM NAVIGATION (FIXO NO RODAPÉ EM TELAS PEQUENAS) -->
+  <nav id="bottomNav" class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 px-2 py-2 flex items-center justify-around text-[10px] font-bold text-slate-500 shadow-lg pb-safe">
+    <button data-nav-tab="maps" class="flex flex-col items-center py-1 px-2 rounded-xl transition">
+      <i data-lucide="map" class="w-5 h-5 mb-0.5"></i>
+      <span>Mapas</span>
+    </button>
+    <button data-nav-tab="bonus" class="flex flex-col items-center py-1 px-2 rounded-xl transition">
+      <i data-lucide="gift" class="w-5 h-5 mb-0.5"></i>
+      <span>Bônus</span>
+    </button>
+    <button data-nav-tab="dictionary" class="flex flex-col items-center py-1 px-2 rounded-xl transition">
+      <i data-lucide="book-open" class="w-5 h-5 mb-0.5"></i>
+      <span>Dicionário</span>
+    </button>
+    <button data-nav-tab="quiz" class="flex flex-col items-center py-1 px-2 rounded-xl transition">
+      <i data-lucide="brain" class="w-5 h-5 mb-0.5"></i>
+      <span>Quiz</span>
+    </button>
+    <button data-nav-tab="calculator" class="flex flex-col items-center py-1 px-2 rounded-xl transition">
+      <i data-lucide="calculator" class="w-5 h-5 mb-0.5"></i>
+      <span>Cálculos</span>
+    </button>
+  </nav>
+
+  <!-- MODAL DE BUSCA GLOBAL (CTRL + K) -->
+  <div id="globalSearchModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-xs flex items-start justify-center p-4 pt-16 md:pt-24 transition-opacity duration-200">
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden border border-slate-200 animate-slide-down flex flex-col max-h-[80vh]">
+      <!-- Input de busca -->
+      <div class="p-4 border-b border-slate-100 flex items-center space-x-3 bg-slate-50">
+        <i data-lucide="search" class="w-5 h-5 text-teal-600"></i>
+        <input type="text" id="globalSearchInput" placeholder="Digite para buscar em toda a plataforma..." class="w-full bg-transparent text-slate-900 text-sm md:text-base font-semibold outline-hidden" autocomplete="off">
+        <button id="closeGlobalSearchBtn" class="p-1 rounded text-slate-400 hover:text-slate-600 text-xs font-bold">ESC</button>
+      </div>
+      <!-- Lista de Resultados Dinâmicos -->
+      <div id="globalSearchResults" class="overflow-y-auto flex-1 divide-y divide-slate-100">
+        <!-- Injetado via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS DA APLICAÇÃO (ORDEM DE DEPENDÊNCIA) -->
+  <script src="./assets/js/storage.js"></script>
+  <script src="./assets/js/maps-data.js"></script>
+  <script src="./assets/js/dictionary-data.js"></script>
+  <script src="./assets/js/bonus-data.js"></script>
+  <script src="./assets/js/quiz-data.js"></script>
+  <script src="./assets/js/calculator.js"></script>
+  <script src="./assets/js/viewer.js"></script>
+  <script src="./assets/js/app.js"></script>
+
+</body>
+</html>

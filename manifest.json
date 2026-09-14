@@ -1,0 +1,24 @@
+{
+  "name": "Farmacologia Conectada",
+  "short_name": "FarmacoApp",
+  "description": "Plataforma interativa de mapas mentais, dicionário e simulados de farmacologia para estudantes da saúde.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0F172A",
+  "theme_color": "#0D9488",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./assets/images/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/images/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

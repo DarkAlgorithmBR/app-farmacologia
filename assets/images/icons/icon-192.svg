@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <linearGradient id="farmacoGrad192" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F766E"/>
+      <stop offset="100%" stop-color="#0D9488"/>
+    </linearGradient>
+    <linearGradient id="pillGrad192" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14B8A6"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+  <!-- Background with rounded corners -->
+  <rect width="192" height="192" rx="42" fill="url(#farmacoGrad192)" />
+  
+  <!-- Subtle inner shadow / border -->
+  <rect x="4" y="4" width="184" height="184" rx="38" fill="none" stroke="#2DD4BF" stroke-width="2" stroke-opacity="0.3" />
+
+  <!-- Central Capsule / Brain Medical Icon -->
+  <g transform="translate(96, 96) rotate(-45)">
+    <!-- Capsule Left Half -->
+    <path d="M -24,-52 C -40,-52 -52,-40 -52,-24 L -52,24 C -52,40 -40,52 -24,52 L 0,52 L 0,-52 Z" fill="#FFFFFF" fill-opacity="0.95" />
+    <!-- Capsule Right Half -->
+    <path d="M 0,-52 L 24,-52 C 40,-52 52,-40 52,-24 L 52,24 C 52,40 40,52 24,52 L 0,52 Z" fill="#F59E0B" />
+    
+    <!-- Medical Cross in Left Half -->
+    <g transform="translate(-26, 0)">
+      <rect x="-4" y="-14" width="8" height="28" rx="3" fill="#0D9488" />
+      <rect x="-14" y="-4" width="28" height="8" rx="3" fill="#0D9488" />
+    </g>
+
+    <!-- Brain / Pulse lines in Right Half -->
+    <g transform="translate(24, 0)">
+      <path d="M -12,0 L -6,-10 L 0,10 L 6,-6 L 12,0" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+  </g>
+</svg>

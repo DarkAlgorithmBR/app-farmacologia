@@ -1,0 +1,26 @@
+﻿{
+  "name": "farmacologia-conectada",
+  "version": "1.0.0",
+  "description": "Plataforma Web App & PWA de Farmacologia Interativa com Mapas Mentais em HD, Dicionário de Fármacos, Simulados Clínicos, Flashcards e Calculadoras Farmacométricas",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve .",
+    "preview": "npx serve -l 3000 ."
+  },
+  "keywords": [
+    "farmacologia",
+    "mapas-mentais",
+    "medicina",
+    "enfermagem",
+    "farmacia",
+    "pwa",
+    "web-app",
+    "calculadora-clinica"
+  ],
+  "author": "Farmacologia Conectada",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.2.4"
+  }
+}
