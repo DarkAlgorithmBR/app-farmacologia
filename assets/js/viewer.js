@@ -30,90 +30,86 @@ class MapViewerEngine {
     if (!modal) {
       modal = document.createElement('div');
       modal.id = 'mapViewerModal';
-      modal.className = 'fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-0 md:p-3 transition-opacity duration-200';
+      modal.className = 'fixed inset-0 z-50 hidden bg-slate-950 flex flex-col justify-between p-0 overflow-hidden text-slate-100 select-none';
       modal.innerHTML = `
-        <div class="relative w-full h-full max-w-7xl bg-slate-900 md:rounded-2xl border border-slate-800 shadow-2xl flex flex-col overflow-hidden text-slate-100">
+        <!-- Top Navigation & Action Bar -->
+        <header class="flex items-center justify-between px-3 sm:px-4 py-2.5 bg-slate-900/95 border-b border-slate-800 z-20 shrink-0 gap-2">
+          <div class="flex items-center space-x-2 overflow-hidden min-w-0 pr-1">
+            <span id="viewerCategoryBadge" class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-teal-500/20 text-teal-300 border border-teal-500/30 shrink-0">SNA</span>
+            <div class="truncate min-w-0">
+              <h2 id="viewerMapTitle" class="text-xs sm:text-sm md:text-base font-bold truncate text-white leading-tight">Título do Mapa</h2>
+              <p id="viewerSubtitle" class="text-[10px] text-slate-400 truncate hidden sm:block">Subtítulo</p>
+            </div>
+          </div>
           
-          <!-- Top Navigation & Action Bar -->
-          <div class="flex items-center justify-between px-4 py-3 bg-slate-900/95 border-b border-slate-800 z-10 shrink-0">
-            <div class="flex items-center space-x-3 overflow-hidden pr-2">
-              <span id="viewerCategoryBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-teal-500/20 text-teal-300 border border-teal-500/30 shrink-0">SNA</span>
-              <div class="truncate">
-                <h2 id="viewerMapTitle" class="text-sm md:text-base font-bold truncate text-white leading-tight">Título do Mapa</h2>
-                <p id="viewerSubtitle" class="text-[11px] text-slate-400 truncate hidden sm:block">Subtítulo</p>
-              </div>
-            </div>
+          <div class="flex items-center space-x-1 sm:space-x-1.5 shrink-0">
+            <!-- Marcar Estudado -->
+            <button id="viewerToggleCompletedBtn" class="flex items-center space-x-1 px-2 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition bg-slate-800 hover:bg-slate-700 text-slate-300 active-press">
+              <i data-lucide="check-circle" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+              <span class="hidden sm:inline" id="viewerCompletedText">Marcar Estudado</span>
+            </button>
+
+            <!-- Favoritar -->
+            <button id="viewerToggleFavoriteBtn" class="p-1.5 sm:p-2 rounded-lg text-slate-400 hover:text-amber-400 hover:bg-slate-800 transition active-press" title="Favoritar">
+              <i data-lucide="star" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+            </button>
+
+            <!-- Baixar Arquivo PNG / PDF -->
+            <button id="viewerDownloadBtn" class="flex items-center space-x-1 px-2 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-teal-600 hover:bg-teal-500 text-white transition shadow-sm active-press" title="Baixar Arquivo">
+              <i data-lucide="download" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+              <span class="hidden sm:inline">Baixar</span>
+            </button>
+
+            <!-- Tela Cheia -->
+            <button id="viewerFullscreenBtn" class="hidden sm:inline-flex p-1.5 sm:p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition active-press" title="Tela Cheia (F)">
+              <i data-lucide="maximize" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+            </button>
+
+            <!-- Fechar -->
+            <button id="viewerCloseBtn" class="p-1.5 sm:p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition active-press ml-1" title="Fechar (ESC)">
+              <i data-lucide="x" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+            </button>
+          </div>
+        </header>
+
+        <!-- Viewport Area (Pan & Zoom Canvas) -->
+        <main id="viewerContainer" class="relative flex-1 w-full h-full overflow-hidden bg-slate-950 cursor-grab active:cursor-grabbing select-none flex items-center justify-center touch-none">
+          
+          <!-- Target for translate & scale transforms -->
+          <div id="viewerContent" class="w-full h-full flex items-center justify-center transform-gpu origin-center will-change-transform pointer-events-none p-2 sm:p-4">
+            <!-- Imagem PNG renderizada aqui -->
+          </div>
+
+          <!-- Dica Flutuante de Gestos -->
+          <div id="viewerHint" class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur border border-slate-700/80 text-slate-300 text-[11px] px-3.5 py-1.5 rounded-full shadow-xl pointer-events-none flex items-center space-x-2 transition-opacity duration-500 z-10 whitespace-nowrap">
+            <i data-lucide="hand" class="w-3.5 h-3.5 text-teal-400"></i>
+            <span>Arraste para mover • Pinça para zoom</span>
+          </div>
+        </main>
+
+        <!-- Bottom Toolbar Controls -->
+        <footer class="flex items-center justify-between px-3 sm:px-4 py-2 bg-slate-900/95 border-t border-slate-800 z-20 text-xs text-slate-400 shrink-0 pb-safe">
+          <div class="flex items-center space-x-2">
+            <span id="viewerFilePath" class="font-mono text-[10px] sm:text-[11px] text-slate-500 hidden md:inline truncate max-w-xs">assets/images/maps/</span>
+          </div>
+
+          <!-- Controles de Zoom -->
+          <div class="flex items-center space-x-2 mx-auto md:mx-0">
+            <button id="viewerZoomOutBtn" class="p-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 transition active-press" title="Diminuir Zoom (-)">
+              <i data-lucide="minus" class="w-4 h-4"></i>
+            </button>
             
-            <div class="flex items-center space-x-1 md:space-x-2 shrink-0">
-              <!-- Marcar Estudado -->
-              <button id="viewerToggleCompletedBtn" class="flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs md:text-sm font-medium transition bg-slate-800 hover:bg-slate-700 text-slate-300">
-                <i data-lucide="check-circle" class="w-4 h-4"></i>
-                <span class="hidden md:inline" id="viewerCompletedText">Marcar Estudado</span>
-              </button>
-
-              <!-- Favoritar -->
-              <button id="viewerToggleFavoriteBtn" class="p-2 rounded-lg text-slate-400 hover:text-amber-400 hover:bg-slate-800 transition" title="Favoritar">
-                <i data-lucide="star" class="w-5 h-5"></i>
-              </button>
-
-              <!-- Baixar Arquivo PNG / PDF -->
-              <button id="viewerDownloadBtn" class="flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold bg-teal-600 hover:bg-teal-500 text-white transition shadow-sm" title="Baixar Arquivo">
-                <i data-lucide="download" class="w-4 h-4"></i>
-                <span class="hidden sm:inline">Baixar</span>
-              </button>
-
-              <!-- Tela Cheia -->
-              <button id="viewerFullscreenBtn" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Tela Cheia (F)">
-                <i data-lucide="maximize" class="w-5 h-5"></i>
-              </button>
-
-              <!-- Fechar -->
-              <button id="viewerCloseBtn" class="p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition ml-1" title="Fechar (ESC)">
-                <i data-lucide="x" class="w-6 h-6"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- Viewport Area (Pan & Zoom Canvas) -->
-          <div id="viewerContainer" class="relative flex-1 w-full h-full overflow-hidden bg-slate-950 cursor-grab active:cursor-grabbing select-none flex items-center justify-center touch-none">
+            <span id="viewerZoomLevel" class="font-mono font-bold px-2.5 py-1 bg-slate-950/90 rounded text-slate-200 text-xs min-w-[50px] text-center border border-slate-800">100%</span>
             
-            <!-- Target for translate & scale transforms -->
-            <div id="viewerContent" class="absolute transform-gpu origin-center transition-transform duration-75 will-change-transform flex items-center justify-center">
-              <!-- Imagem PNG renderizada aqui -->
-            </div>
+            <button id="viewerZoomInBtn" class="p-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 transition active-press" title="Aumentar Zoom (+)">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+            </button>
 
-            <!-- Dica Flutuante de Gestos -->
-            <div id="viewerHint" class="absolute bottom-14 left-1/2 -translate-x-1/2 bg-slate-900/85 backdrop-blur border border-slate-700/80 text-slate-300 text-xs px-4 py-2 rounded-full shadow-xl pointer-events-none flex items-center space-x-2 transition-opacity duration-500">
-              <i data-lucide="hand" class="w-4 h-4 text-teal-400"></i>
-              <span>Arraste para mover • Scroll ou pinça para zoom</span>
-            </div>
+            <button id="viewerZoomResetBtn" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition active-press ml-1" title="Ajustar à Tela (0)">
+              Ajustar
+            </button>
           </div>
-
-          <!-- Bottom Toolbar Controls -->
-          <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900/95 border-t border-slate-800 z-10 text-xs text-slate-400 shrink-0">
-            <div class="flex items-center space-x-2">
-              <span id="viewerFilePath" class="font-mono text-[11px] text-slate-500 hidden sm:inline truncate max-w-xs">assets/images/maps/</span>
-            </div>
-
-            <!-- Controles de Zoom -->
-            <div class="flex items-center space-x-2 mx-auto sm:mx-0">
-              <button id="viewerZoomOutBtn" class="p-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Diminuir Zoom (-)">
-                <i data-lucide="minus" class="w-4 h-4"></i>
-              </button>
-              
-              <span id="viewerZoomLevel" class="font-mono font-bold px-2 py-1 bg-slate-950/80 rounded text-slate-200 min-w-[55px] text-center">100%</span>
-              
-              <button id="viewerZoomInBtn" class="p-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Aumentar Zoom (+)">
-                <i data-lucide="plus" class="w-4 h-4"></i>
-              </button>
-
-              <button id="viewerZoomResetBtn" class="px-2.5 py-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition ml-1" title="Ajustar à Tela (0)">
-                Ajustar
-              </button>
-            </div>
-          </div>
-
-        </div>
+        </footer>
       `;
       document.body.appendChild(modal);
     }
@@ -263,7 +259,7 @@ class MapViewerEngine {
   }
 
   updateTransform() {
-    this.contentEl.style.transform = `translate(${this.pointX}px, ${this.pointY}px) scale(${this.scale})`;
+    this.contentEl.style.transform = `translate3d(${this.pointX}px, ${this.pointY}px, 0) scale(${this.scale})`;
     if (this.zoomLevelEl) {
       this.zoomLevelEl.textContent = `${Math.round(this.scale * 100)}%`;
     }
@@ -365,17 +361,17 @@ class MapViewerEngine {
     const favBtn = this.modalEl.querySelector('#viewerToggleFavoriteBtn');
 
     if (isCompleted) {
-      completedBtn.className = 'flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs md:text-sm font-medium transition bg-emerald-600 hover:bg-emerald-500 text-white shadow-md';
+      completedBtn.className = 'flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs md:text-sm font-medium transition bg-emerald-600 hover:bg-emerald-500 text-white shadow-md active-press';
       completedText.textContent = 'Estudado ✓';
     } else {
-      completedBtn.className = 'flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs md:text-sm font-medium transition bg-slate-800 hover:bg-slate-700 text-slate-300';
+      completedBtn.className = 'flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs md:text-sm font-medium transition bg-slate-800 hover:bg-slate-700 text-slate-300 active-press';
       completedText.textContent = 'Marcar Estudado';
     }
 
     if (isFav) {
-      favBtn.className = 'p-2 rounded-lg text-amber-400 bg-amber-500/20 border border-amber-500/30 transition';
+      favBtn.className = 'p-2 rounded-lg text-amber-400 bg-amber-500/20 border border-amber-500/30 transition active-press';
     } else {
-      favBtn.className = 'p-2 rounded-lg text-slate-400 hover:text-amber-400 hover:bg-slate-800 transition';
+      favBtn.className = 'p-2 rounded-lg text-slate-400 hover:text-amber-400 hover:bg-slate-800 transition active-press';
     }
 
     if (window.lucide) window.lucide.createIcons();
@@ -384,46 +380,26 @@ class MapViewerEngine {
   renderMapImage(map) {
     const imgPath = map.image || `./assets/images/maps/${map.id}.png`;
 
-    // Renderiza a tag de imagem com tratamento inteligente de fallback caso o arquivo ainda não tenha sido colado na pasta
     this.contentEl.innerHTML = `
-      <div class="relative max-w-full max-h-full flex items-center justify-center p-2">
-        <img id="viewerActiveImage" src="${imgPath}" alt="${map.title}" class="max-w-[90vw] max-h-[82vh] md:max-w-[1200px] object-contain rounded-xl shadow-2xl transition-opacity duration-300" 
+      <div class="relative w-full h-full flex items-center justify-center pointer-events-auto">
+        <img id="viewerActiveImage" src="${imgPath}" alt="${map.title}" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl transition-opacity duration-300 pointer-events-auto" 
           onload="this.classList.remove('opacity-0'); document.getElementById('viewerImgFallback')?.classList.add('hidden');"
           onerror="this.classList.add('hidden'); document.getElementById('viewerImgFallback')?.classList.remove('hidden');"
         />
 
-        <!-- Card de Fallback Elegante se o arquivo PNG ainda não estiver presente na pasta -->
-        <div id="viewerImgFallback" class="hidden p-8 md:p-12 max-w-xl text-center bg-slate-900 border-2 border-dashed border-teal-500/40 rounded-2xl shadow-2xl text-slate-200">
-          <div class="w-14 h-14 mx-auto mb-4 rounded-2xl bg-teal-500/10 text-teal-400 flex items-center justify-center border border-teal-500/30">
-            <i data-lucide="image" class="w-7 h-7"></i>
+        <!-- Card de Fallback Elegante se o arquivo PNG não estiver presente -->
+        <div id="viewerImgFallback" class="hidden p-6 md:p-12 max-w-xl text-center bg-slate-900 border-2 border-dashed border-teal-500/40 rounded-2xl shadow-2xl text-slate-200 pointer-events-auto">
+          <div class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-teal-500/10 text-teal-400 flex items-center justify-center border border-teal-500/30">
+            <i data-lucide="image" class="w-6 h-6"></i>
           </div>
           <span class="text-xs font-bold uppercase tracking-wider text-teal-400 mb-1 block">${map.category.toUpperCase()}</span>
-          <h3 class="text-xl font-extrabold text-white mb-2">${map.title}</h3>
-          <p class="text-xs text-slate-400 mb-6 leading-relaxed">${map.subtitle || 'Bloco de leitura do mapa mental preparado.'}</p>
+          <h3 class="text-base md:text-lg font-extrabold text-white mb-2">${map.title}</h3>
+          <p class="text-xs text-slate-400 mb-4 leading-relaxed">${map.subtitle || 'Bloco de leitura do mapa mental preparado.'}</p>
           
-          <div class="p-3 bg-slate-950/70 rounded-xl border border-slate-800 text-xs font-mono text-slate-300 text-left mb-6 break-all">
+          <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800 text-xs font-mono text-slate-300 text-left mb-4 break-all">
             <span class="text-slate-500 block text-[10px] uppercase font-sans font-bold mb-1">Caminho do arquivo esperado:</span>
             📁 ${imgPath}
           </div>
-
-          <!-- Botão para testar com qualquer PNG local se o usuário quiser -->
-          <label class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold cursor-pointer transition shadow-md">
-            <i data-lucide="upload" class="w-4 h-4"></i>
-            <span>Carregar PNG local deste mapa</span>
-            <input type="file" accept="image/png, image/jpeg, image/webp" class="hidden" onchange="
-              const file = this.files[0];
-              if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                  const img = document.getElementById('viewerActiveImage');
-                  img.src = e.target.result;
-                  img.classList.remove('hidden');
-                  document.getElementById('viewerImgFallback').classList.add('hidden');
-                };
-                reader.readAsDataURL(file);
-              }
-            ">
-          </label>
         </div>
       </div>
     `;
