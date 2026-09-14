@@ -1,0 +1,13 @@
+﻿.git
+.git/**
+.github
+.github/**
+.gitignore
+.assetsignore
+node_modules
+node_modules/**
+README.md
+COMO_ADICIONAR_MAPAS_E_PDFS.md
+package.json
+package-lock.json
+vercel.json
