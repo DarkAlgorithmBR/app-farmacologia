@@ -223,6 +223,51 @@ body {
   }
 }
 
+/* ==========================================================================
+   Modos Forçados: Selecionador Mobile / Computador / Auto
+   ========================================================================== */
+
+/* FORÇAR MODO CELULAR (MOBILE) */
+body.force-mobile-mode aside {
+  display: none !important;
+}
+body.force-mobile-mode #bottomNav {
+  display: flex !important;
+}
+body.force-mobile-mode {
+  padding-bottom: calc(75px + env(safe-area-inset-bottom, 0px)) !important;
+}
+body.force-mobile-mode #mapsGridContainer {
+  grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+}
+body.force-mobile-mode #bonusGridContainer {
+  grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+}
+body.force-mobile-mode .desktop-only-element {
+  display: none !important;
+}
+
+/* FORÇAR MODO COMPUTADOR (PC / DESKTOP) */
+body.force-desktop-mode aside {
+  display: block !important;
+  width: 16rem !important;
+}
+body.force-desktop-mode #bottomNav {
+  display: none !important;
+}
+body.force-desktop-mode {
+  padding-bottom: 0 !important;
+}
+body.force-desktop-mode #mapsGridContainer {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+body.force-desktop-mode #bonusGridContainer {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+body.force-desktop-mode .desktop-only-element {
+  display: flex !important;
+}
+
 /* Print optimizations */
 @media print {
   aside, nav, header, footer, #bottomNav, #globalSearchModal, .no-print {

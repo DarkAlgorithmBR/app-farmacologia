@@ -32,6 +32,7 @@ class FarmacoApp {
   }
 
   init() {
+    this.initViewMode();
     this.bindGlobalEvents();
     this.setupPWA();
     this.setupSearchModal();
@@ -1639,6 +1640,80 @@ class FarmacoApp {
     }
 
     if (window.lucide) window.lucide.createIcons();
+  }
+
+  // ==========================================
+  // SELETOR DE MODO DE EXIBIÇÃO (MOBILE / PC / AUTO)
+  // ==========================================
+  initViewMode() {
+    try {
+      const savedMode = localStorage.getItem('farmaco_view_mode') || 'auto';
+      this.setViewMode(savedMode, false);
+    } catch (e) {
+      console.warn('Erro ao carregar modo de exibição:', e);
+    }
+  }
+
+  setViewMode(mode, showNotification = true) {
+    this.viewMode = mode;
+    try {
+      localStorage.setItem('farmaco_view_mode', mode);
+    } catch (e) {}
+
+    const body = document.body;
+    body.classList.remove('force-mobile-mode', 'force-desktop-mode');
+
+    if (mode === 'mobile') {
+      body.classList.add('force-mobile-mode');
+    } else if (mode === 'desktop') {
+      body.classList.add('force-desktop-mode');
+    }
+
+    // Atualiza classes visuais dos botões do seletor
+    const autoBtn = document.getElementById('viewModeAutoBtn');
+    const mobileBtn = document.getElementById('viewModeMobileBtn');
+    const desktopBtn = document.getElementById('viewModeDesktopBtn');
+
+    if (autoBtn) autoBtn.className = mode === 'auto' ? 'px-2 py-0.5 rounded text-[10px] font-bold transition bg-teal-600 text-white shadow-xs' : 'px-2 py-0.5 rounded text-[10px] font-bold transition text-slate-400 hover:text-white';
+    if (mobileBtn) mobileBtn.className = mode === 'mobile' ? 'px-2 py-0.5 rounded text-[10px] font-bold transition bg-teal-600 text-white shadow-xs' : 'px-2 py-0.5 rounded text-[10px] font-bold transition text-slate-400 hover:text-white';
+    if (desktopBtn) desktopBtn.className = mode === 'desktop' ? 'px-2 py-0.5 rounded text-[10px] font-bold transition bg-teal-600 text-white shadow-xs' : 'px-2 py-0.5 rounded text-[10px] font-bold transition text-slate-400 hover:text-white';
+
+    if (showNotification) {
+      const modeNames = {
+        auto: 'Modo Automático ativado (responsivo nativo)',
+        mobile: '📱 Modo Celular forçado com sucesso!',
+        desktop: '💻 Modo Computador (PC) forçado com sucesso!'
+      };
+      this.showToast(modeNames[mode] || 'Modo atualizado');
+    }
+
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  async forceHardRefresh() {
+    this.showToast('Limpando cache do navegador e service worker...');
+    try {
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (let registration of registrations) {
+          await registration.unregister();
+        }
+      }
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        for (let name of cacheNames) {
+          await caches.delete(name);
+        }
+      }
+    } catch (e) {
+      console.warn('Erro ao limpar caches:', e);
+    }
+
+    setTimeout(() => {
+      const url = new URL(window.location.href);
+      url.searchParams.set('v_fresh', Date.now().toString());
+      window.location.href = url.toString();
+    }, 400);
   }
 
   // ==========================================

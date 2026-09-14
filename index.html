@@ -44,7 +44,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="./assets/css/styles.css?v=2.1.0">
+  <link rel="stylesheet" href="./assets/css/styles.css?v=2.2.0">
 </head>
 <body class="min-h-full flex flex-col bg-slate-50 text-slate-800 antialiased selection:bg-teal-500 selection:text-white pb-20 md:pb-0 overflow-x-hidden w-full max-w-full">
 
@@ -103,6 +103,35 @@
       </div>
     </div>
   </header>
+
+  <!-- BARRA DE STATUS DE ATUALIZAÇÃO E SELETOR DE MODO (CELULAR / PC) -->
+  <div class="bg-slate-900 text-slate-300 text-[11px] py-1.5 px-3 border-b border-slate-800 shadow-inner flex flex-wrap items-center justify-between gap-2 z-30">
+    <!-- Indicador de Versão & Atualização -->
+    <div class="flex items-center space-x-2">
+      <span class="inline-flex items-center space-x-1.5 px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold text-[10px]">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+        <span id="appLiveVersionBadge">v2.2.0 • 🟢 ATUALIZADO</span>
+      </span>
+      <button onclick="window.app.forceHardRefresh()" class="inline-flex items-center space-x-1 text-[10px] text-teal-300 hover:text-white underline ml-1 cursor-pointer" title="Limpar cache do celular e recarregar a versão mais recente">
+        <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+        <span>Limpar Cache & Recarregar</span>
+      </button>
+    </div>
+
+    <!-- Seletor de Modo de Exibição (Celular / PC / Auto) -->
+    <div class="flex items-center space-x-1 bg-slate-950/80 p-0.5 rounded-lg border border-slate-800">
+      <span class="text-[10px] text-slate-400 font-medium px-1.5 hidden sm:inline">Visualização:</span>
+      <button id="viewModeAutoBtn" onclick="window.app.setViewMode('auto')" class="px-2 py-0.5 rounded text-[10px] font-bold transition bg-teal-600 text-white" title="Ajuste automático de acordo com a tela">
+        ⚡ Auto
+      </button>
+      <button id="viewModeMobileBtn" onclick="window.app.setViewMode('mobile')" class="px-2 py-0.5 rounded text-[10px] font-bold transition text-slate-400 hover:text-white" title="Forçar layout de aplicativo para celular">
+        📱 Celular
+      </button>
+      <button id="viewModeDesktopBtn" onclick="window.app.setViewMode('desktop')" class="px-2 py-0.5 rounded text-[10px] font-bold transition text-slate-400 hover:text-white" title="Forçar layout de desktop/computador">
+        💻 PC
+      </button>
+    </div>
+  </div>
 
   <!-- CORPO PRINCIPAL COM SIDEBAR NO DESKTOP -->
   <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 w-full flex-1 flex flex-col md:flex-row gap-4 sm:gap-6 min-w-0">
@@ -734,14 +763,14 @@
   </div>
 
   <!-- SCRIPTS DA APLICAÇÃO (ORDEM DE DEPENDÊNCIA) -->
-  <script src="./assets/js/storage.js?v=2.1.0"></script>
-  <script src="./assets/js/maps-data.js?v=2.1.0"></script>
-  <script src="./assets/js/dictionary-data.js?v=2.1.0"></script>
-  <script src="./assets/js/bonus-data.js?v=2.1.0"></script>
-  <script src="./assets/js/quiz-data.js?v=2.1.0"></script>
-  <script src="./assets/js/calculator.js?v=2.1.0"></script>
-  <script src="./assets/js/viewer.js?v=2.1.0"></script>
-  <script src="./assets/js/app.js?v=2.1.0"></script>
+  <script src="./assets/js/storage.js?v=2.2.0"></script>
+  <script src="./assets/js/maps-data.js?v=2.2.0"></script>
+  <script src="./assets/js/dictionary-data.js?v=2.2.0"></script>
+  <script src="./assets/js/bonus-data.js?v=2.2.0"></script>
+  <script src="./assets/js/quiz-data.js?v=2.2.0"></script>
+  <script src="./assets/js/calculator.js?v=2.2.0"></script>
+  <script src="./assets/js/viewer.js?v=2.2.0"></script>
+  <script src="./assets/js/app.js?v=2.2.0"></script>
 
 </body>
 </html>
